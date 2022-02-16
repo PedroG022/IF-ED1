@@ -9,7 +9,7 @@
 //Constantes gerais
 
 #define MAX_STRING_SIZE 150
-#define MAX_ARRAY_SIZE 100
+#define MAX_ARRAY_SIZE 20
 
 //Opções de SO
 
@@ -47,8 +47,18 @@ typedef struct {
     int tamanho ;
 } ListaAreas ;
 
+typedef struct {
+    int tamanho ;
+    char area[MAX_ARRAY_SIZE] ;
+} Prateleira ;
+
+typedef struct {
+    Prateleira prateleiras[MAX_ARRAY_SIZE] ;
+    int tamanho ;
+} Armario ;
+
 //----------------------------------------------------
-//Declaração de métodos
+//Outros
 //----------------------------------------------------
 
 //Printar menu simples
@@ -58,6 +68,68 @@ void printHeader(char title[]) {
     printf("\n%s\n", SEPARATOR);
 }
 
+void menuPrateleiras(Livro livros[], int tamanhoLivros, ListaAreas lista) {
+    system(CLEAR);
+    printHeader("Prateleiras: ");
+}
+
+int obterPrateleiraVazia(Armario* armario, char area[]) {
+    int tamanho = armario -> tamanho ;
+
+    int resultado = 0 ;
+    int achou = 0 ;
+
+    for (int i = 0 ; i < tamanho ; i ++ ) {
+        Prateleira prateleira = armario -> prateleiras[i] ;
+
+        char areaPrat[MAX_STRING_SIZE];
+        strcpy(areaPrat, prateleira.area);
+
+        if (strcmp(areaPrat, area) == 0) {
+            
+            //Prateleira vazia encontrada
+            if (prateleira.tamanho < 3) {
+                achou = 1 ;
+                prateleira.tamanho ++ ;
+                armario -> prateleiras[i] = prateleira ;
+                resultado = ++ i  ;
+            }
+        }
+    }
+
+    if (!achou) {
+        Prateleira nova ;
+        nova.tamanho = 1 ;
+        strcpy(nova.area, area);
+        armario -> prateleiras[armario -> tamanho] = nova ;
+        armario -> tamanho ++ ;
+        resultado = armario -> tamanho ;
+    }
+
+    return resultado ;
+}
+
+//----------------------------------------------------
+//Áreas de Conhecimento
+//----------------------------------------------------
+
+//Mostrar as areas
+void mostrarAreasDeConhecimento(ListaAreas listaAreas) {
+    system(CLEAR);
+    printHeader("Areas de Conhecimento cadastradas");
+    
+    for (int i = 0 ; i < listaAreas.tamanho ; i ++ ) {
+        printf("%d: %s", i, listaAreas.areas[i]);
+
+        //Se não for o último item, imprime uma linha
+        if (!i == listaAreas.tamanho - 1)
+            printf("\n");
+    }
+
+    printf("\n%s\n", SEPARATOR);
+}
+
+//Indica a posição de uma "Area" em uma lista, dado o seu nome
 int localizarArea(ListaAreas* areas, char nome[]) {
     int posicao = -1 ;
 
@@ -68,13 +140,8 @@ int localizarArea(ListaAreas* areas, char nome[]) {
     return posicao ;
 }
 
-void atualizarIdLivro(Livro livros[], int tamanho, ListaAreas* lista) {
-    for (int i = 0 ; i < tamanho ; i ++ ) {
-        livros[i].localizacao = localizarArea(lista, livros[i].areaConhecimento);
-    }
-}
-
-void ordenarAreas(ListaAreas* lista) {
+//Coloca as áreas de determinado array em ordem alfabetica
+void organizarAreas(ListaAreas* lista) {
     int size = lista -> tamanho ;
 
     for (int i = 0 ; i < size ; i ++)
@@ -89,27 +156,11 @@ void ordenarAreas(ListaAreas* lista) {
 }
 
 //----------------------------------------------------
-//Áreas de Conhecimento
-//----------------------------------------------------
-
-//Mostrar as areas
-void mostrarAreasDeConhecimento(ListaAreas listaAreas) {
-    system(CLEAR);
-    printHeader("Areas de Conhecimento cadastradas");
-    
-    for (int i = 0 ; i < listaAreas.tamanho ; i ++ ) {
-        printf("%d: %s\n", i, listaAreas.areas[i]);
-    }
-
-    printf("\n%s\n", SEPARATOR);
-}
-
-//----------------------------------------------------
 //Funções do livro
 //----------------------------------------------------
 
 //Cadastro de livro
-void cadastrarLivro(Livro livros[], int tamanhoLivros, ListaAreas* listaAreas) {
+void cadastrarLivro(Livro livros[], int tamanhoLivros, ListaAreas* listaAreas, Armario* armario) {
     Livro livro ;
 
     system(CLEAR);
@@ -131,7 +182,7 @@ void cadastrarLivro(Livro livros[], int tamanhoLivros, ListaAreas* listaAreas) {
     scanf(" %d", &livro.ano);
 
     livro.id = tamanhoLivros ;
-    livro.localizacao = localizarArea(listaAreas, livro.areaConhecimento);
+    livro.localizacao = obterPrateleiraVazia(armario, livro.areaConhecimento);
 
     livros[tamanhoLivros] = livro ;
 
@@ -160,6 +211,7 @@ void mostratTodosLivros(Livro livro[], int tamanho) {
     }
 }
 
+//Coloca os livros de determinado array em ordem alfabetica
 void organizarLivros(Livro livros[], int tamanaho){
     for (int i = 0 ; i < tamanaho ; i ++ ) {
         for (int j = 0 ; j < tamanaho - 1 ; j ++ ) {
@@ -180,11 +232,12 @@ void mostrarLivroPorArea(Livro livros[], int tamanhoLivros, char areaDeConhecime
     for (int i = 0 ; i < tamanhoLivros ; i ++)
         if (strcmp(livros[i].areaConhecimento, areaDeConhecimento) == 0) 
             livrosDaArea[tamanhoLivrosDaArea++] = livros[i] ;
-    
+
     organizarLivros(livrosDaArea, tamanhoLivrosDaArea);
     mostratTodosLivros(livrosDaArea, tamanhoLivrosDaArea);
 }
 
+//Pergunta ao usuário a área em que deve buscar os livros
 void promptLivrosArea(Livro livros[], int tamanhoLivros) {
     system(CLEAR);
     printHeader("Mostrar livros por Área de Conhecimento");
@@ -195,6 +248,13 @@ void promptLivrosArea(Livro livros[], int tamanhoLivros) {
     scanf(" %[^\n]s", area);
 
     mostrarLivroPorArea(livros, tamanhoLivros, area);
+}
+
+//Atualiza o id de um livro dado o índicde de uma determinada área
+void atualizarLocalLivro(Livro livros[], int tamanho, ListaAreas* lista) {
+    for (int i = 0 ; i < tamanho ; i ++ ) {
+        livros[i].localizacao = localizarArea(lista, livros[i].areaConhecimento);
+    }
 }
 
 //----------------------------------------------------
@@ -222,23 +282,27 @@ int menu() {
     system(CLEAR);
 
     return option ;
-}
+} 
 
 //Método principal
 int main () {
     Livro livros[MAX_ARRAY_SIZE] ;
     int tamanhoLivros = 0 ;
     
-    ListaAreas lista ;
-    lista.tamanho = 0 ;
+    ListaAreas areas ;
+    areas.tamanho = 0 ;
+
+    Armario armario ;
+    armario.tamanho = 0 ;
 
     while (1) {
-        ordenarAreas(&lista);
-        atualizarIdLivro(livros, tamanhoLivros, &lista);
+        organizarAreas(&areas);
+        organizarLivros(livros, tamanhoLivros);
+        //atualizarIdLivro(livros, tamanhoLivros, &lista);
 
         switch (menu()) {
             case MENU_CADASTRAR:
-                cadastrarLivro(livros, tamanhoLivros++, &lista);
+                cadastrarLivro(livros, tamanhoLivros++, &areas, &armario);
                 break;
 
             case MENU_MOSTRAR_LIVROS:
@@ -246,11 +310,15 @@ int main () {
                 break;
 
             case MENU_LISTAR_AREAS:
-                mostrarAreasDeConhecimento(lista);
+                mostrarAreasDeConhecimento(areas);
                 break;
 
             case MENU_LIVRO_POR_AREA:
                 promptLivrosArea(livros, tamanhoLivros);
+                break;
+
+            case MENU_PRATELEIRAS:
+                menuPrateleiras(livros, tamanhoLivros, areas);
                 break;
 
             case MENU_SAIR:

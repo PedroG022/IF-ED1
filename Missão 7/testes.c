@@ -95,14 +95,6 @@ Node* removeNode(Node* head, int data) {
         int nextNodeIndex = nodeIndex(head, aux -> data) + 1 ;
         Node* next = (Node*) getNodeByIndex(head, nextNodeIndex);
         
-        Node* previous = (Node*) malloc(sizeof(Node));
-        int previousIndex = nodeIndex(head, aux -> data) - 1 ;
-
-        if (previousIndex == -1)
-            free(previous);
-        else
-            previous = getNodeByIndex(head, previousIndex);
-
         if (next -> data == data) {
             aux -> link = next -> link ;
             free(next);

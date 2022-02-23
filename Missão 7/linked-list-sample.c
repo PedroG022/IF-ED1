@@ -132,8 +132,6 @@ void executeTests(){
         head = pushNode(head, i);
     }
 
-    head = insertNodeAtEnd(head, -1);
-
     showNodeChain(head);
 
     Node* lastNode = getLastNode(head);

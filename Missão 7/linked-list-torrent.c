@@ -7,16 +7,16 @@
 #define MAX_STR_SIZE 5
 
 typedef struct Torrent {
-    char id[MAX_STR_SIZE] ;
-    struct Torrent* link;
+    char link[MAX_STR_SIZE] ;
+    struct Torrent* dataLink;
 } Torrent ;
 
 //Pushes a node to the top and then returns it
-Torrent* pushNode(Torrent* head, char id[]) {
+Torrent* pushNode(Torrent* head, char link[]) {
     Torrent* newNode = (Torrent*) malloc(sizeof(Torrent));
 
-    strcpy(newNode -> id, id);
-    newNode -> link = head ;
+    strcpy(newNode -> link, link);
+    newNode -> dataLink = head ;
 
     head = newNode ;
 }
@@ -25,31 +25,31 @@ Torrent* pushNode(Torrent* head, char id[]) {
 Torrent* getLastNode(Torrent* node) {
     Torrent* aux = node ;
 
-    while (aux -> link) {
-        aux = aux -> link ;
+    while (aux -> dataLink) {
+        aux = aux -> dataLink ;
     }
 
     return aux ;
 }
 
 //Inserts a node at the last position
-Torrent* insertNodeAtEnd(Torrent* head, char id[]) {
+Torrent* insertNodeAtEnd(Torrent* head, char link[]) {
     if (!head)
-        return pushNode(head, id);
+        return pushNode(head, link);
 
     Torrent* lastNode = getLastNode(head);
     Torrent* newNode = malloc(sizeof(Torrent));
 
-    strcpy(newNode -> id, id);
-    newNode -> link = NULL ;
+    strcpy(newNode -> link, link);
+    newNode -> dataLink = NULL ;
 
-    lastNode -> link = newNode ;
+    lastNode -> dataLink = newNode ;
 
     return head ;
 }
 
-//Returns a node's index given its id
-int nodeIndex(Torrent* head, char id[]) {
+//Returns a node's index given its link
+int nodeIndex(Torrent* head, char link[]) {
     Torrent* aux = head ; 
     int counter = 0 ;
     int result = -1 ;
@@ -57,11 +57,11 @@ int nodeIndex(Torrent* head, char id[]) {
     while (aux) {
         counter ++ ;
 
-        if (!strcmp(aux -> id, id)) {
+        if (!strcmp(aux -> link, link)) {
             result = counter ;
             break ;
         }
-        aux = aux -> link ;
+        aux = aux -> dataLink ;
     }
 
     return result ;
@@ -81,46 +81,46 @@ Torrent* getNodeByIndex(Torrent* head, int index) {
             result = aux ;
             break ;
         }
-        aux = aux -> link ;
+        aux = aux -> dataLink ;
     }
 
     return result ;
 }
 
-//Removes a node given its id
-Torrent* removeNode(Torrent* head, char id[]) {
+//Removes a node given its link
+Torrent* removeNode(Torrent* head, char link[]) {
     Torrent* aux = head ; 
     
     //For the first item
-    if (!strcmp(head -> id, id)) {
-        Torrent* second = head -> link ;
+    if (!strcmp(head -> link, link)) {
+        Torrent* second = head -> dataLink ;
         free(head);
         return(second);
     }
 
-    while (aux && aux -> link) {
-        int nextNodeIndex = nodeIndex(head, aux -> id) + 1 ;
+    while (aux && aux -> dataLink) {
+        int nextNodeIndex = nodeIndex(head, aux -> link) + 1 ;
         Torrent* next = (Torrent*) getNodeByIndex(head, nextNodeIndex);
         
-        if (!strcmp(next -> id, id)) {
-            aux -> link = next -> link ;
+        if (!strcmp(next -> link, link)) {
+            aux -> dataLink = next -> dataLink ;
             free(next);
         }
 
-        aux = aux -> link ;
+        aux = aux -> dataLink ;
     }
 
     return head ;
 }
 
-//Brings a node to the top basing on its id
-Torrent* bringNodeToTop(Torrent* head, char id[]) {
+//Brings a node to the top basing on its link
+Torrent* bringNodeToTop(Torrent* head, char link[]) {
     Torrent* current = malloc(sizeof(Torrent)) ;
 
     char* copyId = malloc(MAX_STR_SIZE);
-    strcpy(copyId, id);
+    strcpy(copyId, link);
 
-    current = removeNode(head, id);
+    current = removeNode(head, link);
     current = pushNode(head, copyId);
 
     return current ;
@@ -131,8 +131,8 @@ void showNodeChain(Torrent* head) {
     Torrent* aux = head ;
 
     while (aux) {
-        printf("Data: %s\n", aux -> id);
-        aux = aux -> link ;
+        printf("Data: %s\n", aux -> link);
+        aux = aux -> dataLink ;
     }
 }
 
@@ -150,23 +150,23 @@ void executeTests(){
     Torrent* lastNode = getLastNode(head);
 
     printf("%s\n", separator);
-    printf("Top node: %s - Top node index: %d\n", head -> id, nodeIndex(head, head -> id));
-    printf("Bottom node: %s - Bottom node index: %d\n", lastNode -> id, nodeIndex(head, lastNode -> id));
+    printf("Top node: %s - Top node index: %d\n", head -> link, nodeIndex(head, head -> link));
+    printf("Bottom node: %s - Bottom node index: %d\n", lastNode -> link, nodeIndex(head, lastNode -> link));
 
     Torrent* gotNode = getNodeByIndex(head, 3);
 
-    printf("Node gotten from index #3: %s\n", gotNode -> id);
+    printf("Node gotten from index #3: %s\n", gotNode -> link);
 
     printf("%s\n", separator);
     printf("List with index #3 removed:\n%s\n",separator);
 
-    head = removeNode(head, getNodeByIndex(head, 3) -> id);
+    head = removeNode(head, getNodeByIndex(head, 3) -> link);
     showNodeChain(head);
 
     printf("%s\n", separator);
     printf("List with index #3 moved to the top:\n%s\n",separator);
 
-    head = bringNodeToTop(head, getNodeByIndex(head,3) -> id);
+    head = bringNodeToTop(head, getNodeByIndex(head,3) -> link);
     showNodeChain(head);
 }
 

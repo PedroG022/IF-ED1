@@ -4,13 +4,25 @@
 #include <string.h>
 
 #define SEPARATOR "-------------------------------"
+
 #define MAX_STR_SIZE 150
+
+#define MENU_CADASTRAR_TORRENT 1
+#define MENU_BUSCAR_TORRENT 2
+#define MENU_LISTAR_TORRENT 3
+#define MENU_SAIR 4
+
+#define CLEAR "clear"
 
 typedef struct Torrent {
     char title[MAX_STR_SIZE] ;
     char link[MAX_STR_SIZE] ;
     struct Torrent* dataLink ;
 } Torrent ;
+
+//------------------------------------------------
+// # Node Utility Methods
+//------------------------------------------------
 
 //Pushes a node to the top and then returns it
 Torrent* pushNode(Torrent* head, char link[], char title[]) {
@@ -118,6 +130,11 @@ Torrent* removeNode(Torrent* head, char link[]) {
 
 //Brings a node to the top basing on its link
 Torrent* bringNodeToTop(Torrent* head, char link[]) {
+
+    //If the target is the top itself
+    if (!strcmp(head -> link, link))
+        return head ;
+
     Torrent* current = malloc(sizeof(Torrent)) ;
 
     char* copyId = malloc(MAX_STR_SIZE);
@@ -134,51 +151,143 @@ Torrent* bringNodeToTop(Torrent* head, char link[]) {
     return current ;
 }
 
+//------------------------------------------------
+// # Main Methods
+//------------------------------------------------
+
+//Utilidade de design
+void printHeader (char text[]) {
+    printf("%s\n%s\n%s\n", SEPARATOR, text, SEPARATOR);
+}
+
 //Shows the Torrent chain
 void showNodeChain(Torrent* head) {
+    printHeader("Torrents cadastrados");
+
     Torrent* aux = head ;
 
     while (aux) {
-        printf("Title: %s - Link: %s \n", aux -> title, aux -> link);
+        printf("Titulo: %s\nLink: %s\n%s\n", aux -> title, aux -> link, SEPARATOR);
         aux = aux -> dataLink ;
     }
 }
 
-void executeTests(){
-    Torrent* head = NULL ;
+//Adiciona um torrent na lista encadeada
+Torrent* cadastrarTorrent(Torrent* topo) {
+    printHeader("Cadastrar torrent");
 
-    head = pushNode(head, "e", "Letra E");
-    head = pushNode(head, "d", "Letra D");
-    head = pushNode(head, "c", "Letra C");
-    head = pushNode(head, "b", "Letra B");
-    head = pushNode(head, "a", "Letra A");
+    char title[MAX_STR_SIZE] ;
+    char link[MAX_STR_SIZE] ;
 
-    showNodeChain(head);
+    printf("Nome do torrent: ");
+    scanf(" %[^\n]s", title);
+    
+    printf("Link do torrent: ");
+    scanf(" %[^\n]s", link);
 
-    Torrent* lastNode = getLastNode(head);
+    printf(SEPARATOR);
+    printf("\nTorrent cadastrado com sucesso!\n%s\n", SEPARATOR);
 
-    printf("%s\n", SEPARATOR);
-    printf("Top node: %s - Top node index: %d\n", head -> link, nodeIndex(head, head -> link));
-    printf("Bottom node: %s - Bottom node index: %d\n", lastNode -> link, nodeIndex(head, lastNode -> link));
-
-    Torrent* gotNode = getNodeByIndex(head, 3);
-
-    printf("Node gotten from index #3: %s\n", gotNode -> link);
-
-    printf("%s\n", SEPARATOR);
-    printf("List with index #3 removed:\n%s\n",SEPARATOR);
-
-    head = removeNode(head, getNodeByIndex(head, 3) -> link);
-    showNodeChain(head);
-
-    printf("%s\n", SEPARATOR);
-    printf("List with index #3 moved to the top:\n%s\n",SEPARATOR);
-
-    head = bringNodeToTop(head, getNodeByIndex(head,3) -> link);
-    showNodeChain(head);
+    return pushNode(topo, link, title) ;
 }
 
-int main () {
-    executeTests();
+//Pesquisa um torrent na lista e leva ele para o topo
+Torrent* pesquisarTorrent(char* nome, Torrent* topo) {
+    Torrent* aux = topo ;
+    Torrent* result = NULL ;
+
+    int counter = 0 ;
+    
+    while (aux) {
+        counter ++ ;
+
+        if (!strcmp(aux -> title, nome)) {
+            result = malloc(sizeof(Torrent));
+            result = getNodeByIndex(topo, counter);
+            break ;
+        }
+
+        aux = aux -> dataLink ;
+    }
+    
+    return result ;
+}
+
+//Menu de pesquisa do torrent
+Torrent* menuPesquisaTorrent(Torrent* topo) {
+    system(CLEAR);
+    printHeader("Busar torrent");
+
+    char nome[MAX_STR_SIZE] ;
+
+    printf("Insira o nome do torrent que deseja buscar: ");
+    scanf(" %[^\n]s", nome);
+
+    Torrent* resultado = pesquisarTorrent(nome, topo);
+
+    if (!resultado){
+        printf("Torrent não encontrado!\n%s\n", SEPARATOR);
+        return topo ;
+    } else {
+        printf("%s\nNome: %s\nLink: %s\n%s\n", SEPARATOR, resultado -> title, resultado -> link, SEPARATOR);
+        Torrent* foundTorrent = bringNodeToTop(topo, resultado -> link);
+        return foundTorrent ;
+    }
+}
+
+//Mostra um menu com as opções disponíveis
+int optionsMenu() {
+    system(CLEAR);
+
+    printHeader("iTorrente");
+
+    printf("%d - Cadastrar torrent", MENU_CADASTRAR_TORRENT);
+    printf("\n%d - Buscar torrent", MENU_BUSCAR_TORRENT);
+    printf("\n%d - Listar torrents", MENU_LISTAR_TORRENT);
+    printf("\n%d - Sair", MENU_SAIR);
+
+    printf("\n%s\n", SEPARATOR);
+    printf("Selecione a opção desejada: ");
+
+    int selected = -1 ;
+    scanf(" %d", &selected);
+
+    system(CLEAR);
+
+    return selected ;
+}
+
+//Método principal
+int main() {
+    Torrent* torrent = NULL ;
+
+    while (1) {
+        switch (optionsMenu()) {
+            case MENU_CADASTRAR_TORRENT:
+                torrent = cadastrarTorrent(torrent);
+                break;
+
+            case MENU_BUSCAR_TORRENT:
+                torrent = menuPesquisaTorrent(torrent);
+                break;
+
+            case MENU_LISTAR_TORRENT:
+                showNodeChain(torrent);
+                break;
+
+            case MENU_SAIR:
+                return 0 ;
+                break;
+
+            default:
+                printHeader("Opção desconhecida!");
+                break;
+        }
+
+        printf("Pressione ENTER para continuar...");
+        setbuf(stdin, NULL);
+        getchar();
+    }
+
     return 0 ;
 }

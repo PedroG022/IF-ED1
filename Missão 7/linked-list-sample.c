@@ -114,6 +114,9 @@ Node* removeNode(Node* head, int data) {
 
 //Brings a node to the top basing on its data
 Node* bringNodeToTop(Node* head, int data) {
+    if (head -> data == data)
+        return head ;
+        
     Node* current = malloc(sizeof(Node)) ;
 
     current = removeNode(head, data);

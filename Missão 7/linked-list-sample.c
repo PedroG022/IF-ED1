@@ -90,6 +90,13 @@ Node* getNodeByIndex(Node* head, int index) {
 Node* removeNode(Node* head, int data) {
     Node* aux = head ; 
     
+    //For the first item
+    if (head -> data == data) {
+        Node* second = head -> link ;
+        free(head);
+        return(second);
+    }
+
     while (aux && aux -> link) {
         int nextNodeIndex = nodeIndex(head, aux -> data) + 1 ;
         Node* next = (Node*) getNodeByIndex(head, nextNodeIndex);
@@ -153,7 +160,7 @@ void executeTests(){
     printf("%s\n", separator);
     printf("List with index #3 moved to the top:\n%s\n",separator);
 
-    head = bringNodeToTop(head, getNodeByIndex(head,4) -> data);
+    head = bringNodeToTop(head, getNodeByIndex(head,3) -> data);
     showNodeChain(head);
 }
 

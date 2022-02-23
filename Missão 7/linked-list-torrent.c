@@ -4,17 +4,19 @@
 #include <string.h>
 
 #define separator "-------------------------------"
-#define MAX_STR_SIZE 5
+#define MAX_STR_SIZE 150
 
 typedef struct Torrent {
+    char title[MAX_STR_SIZE] ;
     char link[MAX_STR_SIZE] ;
-    struct Torrent* dataLink;
+    struct Torrent* dataLink ;
 } Torrent ;
 
 //Pushes a node to the top and then returns it
-Torrent* pushNode(Torrent* head, char link[]) {
+Torrent* pushNode(Torrent* head, char link[], char title[]) {
     Torrent* newNode = (Torrent*) malloc(sizeof(Torrent));
 
+    strcpy(newNode -> title, title);
     strcpy(newNode -> link, link);
     newNode -> dataLink = head ;
 
@@ -33,13 +35,14 @@ Torrent* getLastNode(Torrent* node) {
 }
 
 //Inserts a node at the last position
-Torrent* insertNodeAtEnd(Torrent* head, char link[]) {
+Torrent* insertNodeAtEnd(Torrent* head, char link[], char title[]) {
     if (!head)
-        return pushNode(head, link);
+        return pushNode(head, link, title);
 
     Torrent* lastNode = getLastNode(head);
     Torrent* newNode = malloc(sizeof(Torrent));
 
+    strcpy(newNode -> title, title);
     strcpy(newNode -> link, link);
     newNode -> dataLink = NULL ;
 
@@ -118,10 +121,15 @@ Torrent* bringNodeToTop(Torrent* head, char link[]) {
     Torrent* current = malloc(sizeof(Torrent)) ;
 
     char* copyId = malloc(MAX_STR_SIZE);
+    char* copyTitle = malloc(MAX_STR_SIZE);
+
+    Torrent* target = getNodeByIndex(head, nodeIndex(head, link));
+
     strcpy(copyId, link);
+    strcpy(copyTitle, target -> title);
 
     current = removeNode(head, link);
-    current = pushNode(head, copyId);
+    current = pushNode(head, copyId, copyTitle);
 
     return current ;
 }
@@ -131,7 +139,7 @@ void showNodeChain(Torrent* head) {
     Torrent* aux = head ;
 
     while (aux) {
-        printf("Data: %s\n", aux -> link);
+        printf("Title: %s - Link: %s \n", aux -> title, aux -> link);
         aux = aux -> dataLink ;
     }
 }
@@ -139,11 +147,11 @@ void showNodeChain(Torrent* head) {
 void executeTests(){
     Torrent* head = NULL ;
 
-    head = pushNode(head, "e");
-    head = pushNode(head, "d");
-    head = pushNode(head, "c");
-    head = pushNode(head, "b");
-    head = pushNode(head, "a");
+    head = pushNode(head, "e", "Letra E");
+    head = pushNode(head, "d", "Letra D");
+    head = pushNode(head, "c", "Letra C");
+    head = pushNode(head, "b", "Letra B");
+    head = pushNode(head, "a", "Letra A");
 
     showNodeChain(head);
 

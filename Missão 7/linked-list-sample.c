@@ -128,25 +128,19 @@ void showNodeChain(Node* head) {
 void executeTests(){
     Node* head = NULL ;
 
+    for (int i = 0 ; i < 5 ; i ++) {
+        head = pushNode(head, i);
+    }
+
     head = insertNodeAtEnd(head, -1);
-    head = insertNodeAtEnd(head, -2);
-    head = insertNodeAtEnd(head, -3);
-    head = insertNodeAtEnd(head, -4);
-    head = insertNodeAtEnd(head, -5);
-
-    head = pushNode(head, 0);
-    head = pushNode(head, 1);
-    head = pushNode(head, 2);
-
 
     showNodeChain(head);
 
     Node* lastNode = getLastNode(head);
 
     printf("%s\n", separator);
-    printf("Bottom node: %d\n", lastNode -> data);
-    printf("Top node: %d\n", head -> data);
-    printf("Bottom node index: %d\n", nodeIndex(head, lastNode -> data));
+    printf("Top node: %d - Top node index: %d\n", head -> data, nodeIndex(head, head -> data));
+    printf("Bottom node: %d - Bottom node index: %d\n", lastNode -> data, nodeIndex(head, lastNode -> data));
 
     Node* gotNode = getNodeByIndex(head, 3);
 

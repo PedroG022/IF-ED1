@@ -64,7 +64,7 @@ Torrent* insertNodeAtEnd(Torrent* head, char link[], char title[]) {
 }
 
 //Returns a node's index given its link
-int nodeIndex(Torrent* head, char link[]) {
+int nodeIndexByLink(Torrent* head, char link[]) {
     Torrent* aux = head ; 
     int counter = 0 ;
     int result = -1 ;
@@ -73,6 +73,24 @@ int nodeIndex(Torrent* head, char link[]) {
         counter ++ ;
 
         if (!strcmp(aux -> link, link)) {
+            result = counter ;
+            break ;
+        }
+        aux = aux -> dataLink ;
+    }
+
+    return result ;
+}
+
+int nodeIndexByTitle(Torrent* head, char title[]) {
+    Torrent* aux = head ; 
+    int counter = 0 ;
+    int result = -1 ;
+
+    while (aux) {
+        counter ++ ;
+
+        if (!strcmp(aux -> title, title)) {
             result = counter ;
             break ;
         }
@@ -114,7 +132,7 @@ Torrent* removeNode(Torrent* head, char link[]) {
     }
 
     while (aux && aux -> dataLink) {
-        int nextNodeIndex = nodeIndex(head, aux -> link) + 1 ;
+        int nextNodeIndex = nodeIndexByLink(head, aux -> link) + 1 ;
         Torrent* next = (Torrent*) getNodeByIndex(head, nextNodeIndex);
         
         if (!strcmp(next -> link, link)) {
@@ -140,7 +158,7 @@ Torrent* bringNodeToTop(Torrent* head, char link[]) {
     char* copyId = malloc(MAX_STR_SIZE);
     char* copyTitle = malloc(MAX_STR_SIZE);
 
-    Torrent* target = getNodeByIndex(head, nodeIndex(head, link));
+    Torrent* target = getNodeByIndex(head, nodeIndexByLink(head, link));
 
     strcpy(copyId, link);
     strcpy(copyTitle, target -> title);
@@ -179,11 +197,28 @@ Torrent* cadastrarTorrent(Torrent* topo) {
     char title[MAX_STR_SIZE] ;
     char link[MAX_STR_SIZE] ;
 
-    printf("Nome do torrent: ");
-    scanf(" %[^\n]s", title);
-    
-    printf("Link do torrent: ");
-    scanf(" %[^\n]s", link);
+    int validTitle = 0 ;
+    int validLink = 0 ;
+
+    do {
+        printf("Nome do torrent: ");
+        scanf(" %[^\n]s", title);
+
+        if (nodeIndexByTitle(topo, title) <= 0)
+            validTitle = 1 ;
+        else printf("Já existe um torrent com este título!\n");
+
+    } while (!validTitle) ;
+
+    do {
+        printf("Link do torrent: ");
+        scanf(" %[^\n]s", link);
+
+        if (nodeIndexByLink(topo, link) <= 0)
+            validLink = 1 ;
+        else printf("Já existe um torrent com este link!\n");
+        
+    } while (!validLink) ;
 
     printf(SEPARATOR);
     printf("\nTorrent cadastrado com sucesso!\n%s\n", SEPARATOR);

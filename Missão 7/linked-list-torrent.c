@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#define separator "-------------------------------"
+#define SEPARATOR "-------------------------------"
 #define MAX_STR_SIZE 150
 
 typedef struct Torrent {
@@ -157,7 +157,7 @@ void executeTests(){
 
     Torrent* lastNode = getLastNode(head);
 
-    printf("%s\n", separator);
+    printf("%s\n", SEPARATOR);
     printf("Top node: %s - Top node index: %d\n", head -> link, nodeIndex(head, head -> link));
     printf("Bottom node: %s - Bottom node index: %d\n", lastNode -> link, nodeIndex(head, lastNode -> link));
 
@@ -165,14 +165,14 @@ void executeTests(){
 
     printf("Node gotten from index #3: %s\n", gotNode -> link);
 
-    printf("%s\n", separator);
-    printf("List with index #3 removed:\n%s\n",separator);
+    printf("%s\n", SEPARATOR);
+    printf("List with index #3 removed:\n%s\n",SEPARATOR);
 
     head = removeNode(head, getNodeByIndex(head, 3) -> link);
     showNodeChain(head);
 
-    printf("%s\n", separator);
-    printf("List with index #3 moved to the top:\n%s\n",separator);
+    printf("%s\n", SEPARATOR);
+    printf("List with index #3 moved to the top:\n%s\n",SEPARATOR);
 
     head = bringNodeToTop(head, getNodeByIndex(head,3) -> link);
     showNodeChain(head);

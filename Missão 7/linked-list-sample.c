@@ -10,8 +10,8 @@ typedef struct Node {
     struct Node* link;
 } Node ;
 
-//Returns the top node
-Node* push(Node* head, int data) {
+//Pushes a node to the top and then returns it
+Node* pushNode(Node* head, int data) {
     Node* newNode = (Node*) malloc(sizeof(Node));
 
     newNode -> data = data ;
@@ -32,9 +32,9 @@ Node* getLastNode(Node* node) {
 }
 
 //Inserts a node at the last position
-Node* insertAtEnd(Node* head, int data) {
+Node* insertNodeAtEnd(Node* head, int data) {
     if (!head)
-        return push(head, data);
+        return pushNode(head, data);
 
     Node* lastNode = getLastNode(head);
     Node* newNode = malloc(sizeof(Node));
@@ -87,10 +87,9 @@ Node* getNodeByIndex(Node* head, int index) {
 }
 
 //Removes a node given its data
-//Pass the link from its neighbours
 Node* removeNode(Node* head, int data) {
     Node* aux = head ; 
-
+    
     while (aux && aux -> link) {
         int nextNodeIndex = nodeIndex(head, aux -> data) + 1 ;
         Node* next = (Node*) getNodeByIndex(head, nextNodeIndex);
@@ -107,17 +106,17 @@ Node* removeNode(Node* head, int data) {
 }
 
 //Brings a node to the top basing on its data
-Node* bringToTop(Node* head, int data) {
+Node* bringNodeToTop(Node* head, int data) {
     Node* current = malloc(sizeof(Node)) ;
 
     current = removeNode(head, data);
-    current = push(head, data);
+    current = pushNode(head, data);
 
     return current ;
 }
 
 //Shows the Node chain
-void showChain(Node* head) {
+void showNodeChain(Node* head) {
     Node* aux = head ;
 
     while (aux) {
@@ -129,18 +128,18 @@ void showChain(Node* head) {
 void executeTests(){
     Node* head = NULL ;
 
-    head = insertAtEnd(head, -1);
-    head = insertAtEnd(head, -2);
-    head = insertAtEnd(head, -3);
-    head = insertAtEnd(head, -4);
-    head = insertAtEnd(head, -5);
+    head = insertNodeAtEnd(head, -1);
+    head = insertNodeAtEnd(head, -2);
+    head = insertNodeAtEnd(head, -3);
+    head = insertNodeAtEnd(head, -4);
+    head = insertNodeAtEnd(head, -5);
 
-    head = push(head, 0);
-    head = push(head, 1);
-    head = push(head, 2);
+    head = pushNode(head, 0);
+    head = pushNode(head, 1);
+    head = pushNode(head, 2);
 
 
-    showChain(head);
+    showNodeChain(head);
 
     Node* lastNode = getLastNode(head);
 
@@ -157,13 +156,13 @@ void executeTests(){
     printf("List with index #3 removed:\n%s\n",separator);
 
     head = removeNode(head, getNodeByIndex(head, 3) -> data);
-    showChain(head);
+    showNodeChain(head);
 
     printf("%s\n", separator);
     printf("List with index #3 moved to the top:\n%s\n",separator);
 
-    head = bringToTop(head, getNodeByIndex(head,4) -> data);
-    showChain(head);
+    head = bringNodeToTop(head, getNodeByIndex(head,4) -> data);
+    showNodeChain(head);
 }
 
 int main () {

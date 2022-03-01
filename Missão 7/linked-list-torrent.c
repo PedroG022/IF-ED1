@@ -82,6 +82,7 @@ int nodeIndexByLink(Torrent* head, char link[]) {
     return result ;
 }
 
+//Returns a node's index given its title
 int nodeIndexByTitle(Torrent* head, char title[]) {
     Torrent* aux = head ; 
     int counter = 0 ;
@@ -226,47 +227,74 @@ Torrent* cadastrarTorrent(Torrent* topo) {
     return pushNode(topo, link, title) ;
 }
 
-//Pesquisa um torrent na lista e leva ele para o topo
-Torrent* pesquisarTorrent(char* nome, Torrent* topo) {
-    Torrent* aux = topo ;
-    Torrent* result = NULL ;
-
-    int counter = 0 ;
-    
-    while (aux) {
-        counter ++ ;
-
-        if (!strcmp(aux -> title, nome)) {
-            result = malloc(sizeof(Torrent));
-            result = getNodeByIndex(topo, counter);
-            break ;
-        }
-
-        aux = aux -> dataLink ;
-    }
-    
-    return result ;
-}
-
 //Menu de pesquisa do torrent
 Torrent* menuPesquisaTorrent(Torrent* topo) {
     system(CLEAR);
     printHeader("Busar torrent");
 
-    char nome[MAX_STR_SIZE] ;
+    char pesquisa[MAX_STR_SIZE] ;
 
     printf("Insira o nome do torrent que deseja buscar: ");
-    scanf(" %[^\n]s", nome);
+    scanf(" %[^\n]s", pesquisa);
 
-    Torrent* resultado = pesquisarTorrent(nome, topo);
+    int foundResults = 0 ;
+    Torrent* resultado = malloc(sizeof(Torrent));
 
-    if (!resultado){
+    Torrent* aux = topo ;
+
+    //trim()
+    //Remove os espaços da pesquisa
+    for (int i = 0 ; i < strlen(pesquisa) ; i ++ )
+        if (pesquisa[i] == 32)
+            pesquisa[i] = pesquisa [i+1] ;
+
+    while (aux) {
+        char trimmedTitle[MAX_STR_SIZE];
+        strcpy(trimmedTitle, aux -> title);
+
+        //trim()
+        //Remove os espaços do titulo
+        for (int i = 0 ; i < strlen(trimmedTitle) ; i ++)
+            if(trimmedTitle[i] == 32)
+                trimmedTitle[i] = trimmedTitle[i+1] ;
+
+        //Se o tamanho da pesquisa for maior que o nome do torrent
+        //logicamente, este não é o nosso alvo
+        if (strlen(pesquisa) > strlen(trimmedTitle)) 
+			aux = aux -> dataLink ;
+
+        //Comparação ignorando CASE (MAÍUSCULO e minúsculo)
+        //Optei por usar uma função da lib string, só que também
+        //é possivel fazer manualmente, verificando a diferença de 32
+        //no identificador de um char. Se ele está dentro de um range,
+        //significa que é maíusculo (ou minúsculo). Para tornar ele
+        //é necessário apenas somar ou subtrair 32. (Vide tabela ASCII)
+        if (!strcasecmp(pesquisa, trimmedTitle)) {
+            foundResults ++ ;
+            *resultado = *aux ;
+            break ;
+        }
+
+        //Método da lib string, verifica a diferença entre uma determinada
+        //quantia de caractéres em duas strings
+        if (!strncasecmp(pesquisa, trimmedTitle, 4)){
+            resultado = aux ;
+            foundResults ++ ;
+            break ;
+        }
+        
+        aux = aux -> dataLink ;
+    }
+
+    if (!resultado || foundResults == 0) {
         printf("Torrent não encontrado!\n%s\n", SEPARATOR);
         return topo ;
-    } else {
+    } else if (foundResults == 1) {
         printf("%s\nNome: %s\nLink: %s\n%s\n", SEPARATOR, resultado -> title, resultado -> link, SEPARATOR);
         Torrent* foundTorrent = bringNodeToTop(topo, resultado -> link);
         return foundTorrent ;
+    } else {
+        return topo ;
     }
 }
 
